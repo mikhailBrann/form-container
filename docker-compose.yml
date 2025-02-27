@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  centos_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./home/bitrix/b2b-forms.ingkacentres.com/public_html:/home/bitrix/b2b-forms.ingkacentres.com/public_html
+    restart: always
+    # command: tail -f /dev/null
+    container_name: ${APP_NAME}_php
+    networks:
+      - my_network
+  nginx_service:
+    image: nginx:latest
+    container_name: ${APP_NAME}_nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./logs/nginx:/var/log/nginx
+      - ./home/bitrix/b2b-forms.ingkacentres.com/public_html:/home/bitrix/b2b-forms.ingkacentres.com/public_html
+    restart: always
+    ports:
+      - "3781:80"
+    depends_on:
+      - centos_service 
+    networks:
+      - my_network
+networks:
+    my_network:
+      name: ${APP_NAME}_network
+      driver: bridge
