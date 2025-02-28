@@ -15,7 +15,7 @@ services:
     # command: tail -f /dev/null
     container_name: ${APP_NAME}_php
     networks:
-      - my_network
+      - centos_test_network
   nginx_service:
     image: nginx:latest
     container_name: ${APP_NAME}_nginx
@@ -29,8 +29,8 @@ services:
     depends_on:
       - centos_service 
     networks:
-      - my_network
+      - centos_test_network
 networks:
-    my_network:
-      name: ${APP_NAME}_network
+    centos_test_network:
+      name: centos_test_network
       driver: bridge

@@ -14,32 +14,36 @@ RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|
 RUN yum update -y
 
 # Install php(remi)
-RUN yum -y install epel-release && \
-    yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
-    yum -y install yum-utils
+# RUN yum -y install epel-release && \
+#     yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
+#     yum -y install yum-utils
+    
 
 # Включение репозитория PHP 8.1
-RUN yum-config-manager --enable remi-php81
+RUN yum -y install epel-release && \
+    yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
+    yum-config-manager --enable remi-php81 && \
+    yum -y install php php-fpm
 # Установка PHP 8.1 и основных расширений
-RUN yum -y install php php-cli php-common \
-    php-fpm \
-    php-mysqlnd \
-    php-zip \
-    php-devel \
-    php-gd \
-    php-mcrypt \
-    php-mbstring \
-    php-curl \
-    php-xml \
-    php-pear \
-    php-bcmath \
-    php-json
+# RUN yum -y install php php-cli php-common \
+#     php-fpm \
+#     php-mysqlnd \
+#     php-zip \
+#     php-devel \
+#     php-gd \
+#     php-mcrypt \
+#     php-mbstring \
+#     php-curl \
+#     php-xml \
+#     php-pear \
+#     php-bcmath \
+#     php-json
 
 # Настройка PHP-FPM
 RUN mkdir -p /run/php-fpm && \
     chmod 755 /run/php-fpm && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/listen.allowed_clients = 127.0.0.1/listen.allowed_clients = any/g' /etc/php-fpm.d/www.conf && \
+    sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/g' /etc/php-fpm.d/www.conf && \
+    sed -i 's/;listen.allowed_clients = 127.0.0.1/listen.allowed_clients = 0.0.0.0/g' /etc/php-fpm.d/www.conf && \
     sed -i 's/user = apache/user = nginx/g' /etc/php-fpm.d/www.conf && \
     sed -i 's/group = apache/group = nginx/g' /etc/php-fpm.d/www.conf
 
