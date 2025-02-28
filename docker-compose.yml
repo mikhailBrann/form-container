@@ -7,6 +7,9 @@ services:
     env_file:
       - .env
     volumes:
+      - ./php/81/php.ini:/etc/php.ini
+      - ./php/81/www.conf:/etc/php-fpm.d/www.conf
+      - ./logs/php:/var/log/php-fpm
       - ./home/bitrix/b2b-forms.ingkacentres.com/public_html:/home/bitrix/b2b-forms.ingkacentres.com/public_html
     restart: always
     # command: tail -f /dev/null
