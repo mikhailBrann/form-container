@@ -1,5 +1,19 @@
 version: '3.8'
 services:
+  mariadb:
+    image: mariadb:10.4.12
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=your_root_password
+      - MYSQL_DATABASE=your_database
+      - MYSQL_USER=your_user
+      - MYSQL_PASSWORD=your_password
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - centos_test_network
   centos_service:
     build:
       context: .
@@ -30,7 +44,10 @@ services:
       - centos_service 
     networks:
       - centos_test_network
+volumes:
+  mariadb_data:
+    driver: local
 networks:
     centos_test_network:
-      name: centos_test_network
+      name: ${APP_NAME}_network
       driver: bridge
