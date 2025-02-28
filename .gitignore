@@ -1,3 +1,4 @@
 home/bitrix/*
 .env
 /logs/*
+mariadb_data/*

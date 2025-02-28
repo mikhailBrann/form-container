@@ -2,14 +2,11 @@ version: '3.8'
 services:
   mariadb:
     image: mariadb:10.4.12
-    container_name: mariadb
-    environment:
-      - MYSQL_ROOT_PASSWORD=your_root_password
-      - MYSQL_DATABASE=your_database
-      - MYSQL_USER=your_user
-      - MYSQL_PASSWORD=your_password
+    container_name: ${APP_NAME}_mariadb
+    env_file:
+      - .env
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - ./mariadb_data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -28,6 +25,26 @@ services:
     restart: always
     # command: tail -f /dev/null
     container_name: ${APP_NAME}_php
+    depends_on:
+      - mariadb
+    networks:
+      - centos_test_network
+  centos_service_83:
+    build:
+      context: .
+      dockerfile: php83.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./php/83/php.ini:/etc/php.ini
+      - ./php/83/www.conf:/etc/php-fpm.d/www.conf
+      - ./logs/php:/var/log/php-fpm
+      - ./home/bitrix/b2b-forms.ingkacentres.com/public_html:/home/bitrix/b2b-forms.ingkacentres.com/public_html
+    restart: always
+    # command: tail -f /dev/null
+    container_name: ${APP_NAME}_83php
+    depends_on:
+      - mariadb
     networks:
       - centos_test_network
   nginx_service:
