@@ -1,4 +1,8 @@
 FROM centos:7
+
+ARG UID
+ARG GID
+
 # yum update
 ADD http://vault.centos.org/centos/7/os/x86_64/Packages/ca-certificates-2020.2.41-70.0.el7_8.noarch.rpm /tmp/
 RUN rpm -Uvh /tmp/ca-certificates-2020.2.41-70.0.el7_8.noarch.rpm --nosignature --force
@@ -39,6 +43,9 @@ RUN yum -y install php-cli php-common \
     php-bcmath \
     php-json
 
+COPY php/81/php.ini /etc/php.ini
+COPY php/81/www.conf /etc/php-fpm.d/www.conf
+
 # Add PHP-FPM optimizations for large responses
 RUN echo "php_admin_value[memory_limit] = 256M" >> /etc/php-fpm.d/www.conf && \
     echo "php_admin_value[post_max_size] = 128M" >> /etc/php-fpm.d/www.conf && \
@@ -48,20 +55,14 @@ RUN echo "php_admin_value[memory_limit] = 256M" >> /etc/php-fpm.d/www.conf && \
 
 # Настройка PHP-FPM
 RUN mkdir -p /run/php-fpm && \
-    chmod 755 /run/php-fpm && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/;listen.allowed_clients = 127.0.0.1/listen.allowed_clients = 0.0.0.0/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/user = apache/user = bitrix/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/group = apache/group = bitrix/g' /etc/php-fpm.d/www.conf
+    chmod 755 /run/php-fpm
 
 RUN mkdir -p /bitrix/tmp && \
     chmod 777 /bitrix/tmp
-# USER bitrix
-RUN useradd -r bitrix && \
-    usermod -a -G apache bitrix && \
-    chown -R bitrix:bitrix /home
+
+RUN useradd -r bitrix -d /home/bitrix && \
+    usermod -a -G apache -u ${UID} bitrix && \
+    groupmod -g ${GID} bitrix
 
 EXPOSE 9000
 CMD ["php-fpm", "-F"]
-
-# CMD ["php-fpm", "-F"]
