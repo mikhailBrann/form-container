@@ -39,6 +39,13 @@ RUN yum -y install php-cli php-common \
     php-bcmath \
     php-json
 
+# Add PHP-FPM optimizations for large responses
+RUN echo "php_admin_value[memory_limit] = 256M" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[post_max_size] = 128M" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[upload_max_filesize] = 128M" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[max_execution_time] = 300" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[max_input_time] = 300" >> /etc/php-fpm.d/www.conf    
+
 # Настройка PHP-FPM
 RUN mkdir -p /run/php-fpm && \
     chmod 755 /run/php-fpm && \
@@ -47,6 +54,9 @@ RUN mkdir -p /run/php-fpm && \
     sed -i 's/user = apache/user = bitrix/g' /etc/php-fpm.d/www.conf && \
     sed -i 's/group = apache/group = bitrix/g' /etc/php-fpm.d/www.conf
 
+RUN mkdir -p /bitrix/tmp && \
+    chmod 777 /bitrix/tmp
+# USER bitrix
 RUN useradd -r bitrix
 
 EXPOSE 9000
