@@ -22,7 +22,7 @@ services:
       - ./php/81/www.conf:/etc/php-fpm.d/www.conf
       - ./logs/php:/var/log/php-fpm
       - ./home/bitrix/b2b-forms.ingkacentres.com/public_html:/home/bitrix/b2b-forms.ingkacentres.com/public_html
-      - ./home/bitrix/tmp:/home/bitrix/tmp
+      - ./home/bitrix/tmp:/bitrix/tmp
     restart: always
     # command: tail -f /dev/null
     container_name: ${APP_NAME}_php

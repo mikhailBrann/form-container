@@ -57,7 +57,9 @@ RUN mkdir -p /run/php-fpm && \
 RUN mkdir -p /bitrix/tmp && \
     chmod 777 /bitrix/tmp
 # USER bitrix
-RUN useradd -r bitrix
+RUN useradd -r bitrix && \
+    usermod -a -G apache bitrix && \
+    chown -R bitrix:bitrix /home
 
 EXPOSE 9000
 CMD ["php-fpm", "-F"]
