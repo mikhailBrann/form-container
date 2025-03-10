@@ -13,12 +13,7 @@ RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|
 # Run yum update
 RUN yum update -y
 
-# Install php(remi)
-# RUN yum -y install epel-release && \
-#     yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
-#     yum -y install yum-utils
     
-
 # Включение репозитория PHP 8.3
 RUN yum -y install epel-release && \
     yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
@@ -39,17 +34,26 @@ RUN yum -y install php-cli php-common \
     php-bcmath \
     php-json
 
+COPY php/83/php.ini /etc/php.ini
+COPY php/83/www.conf /etc/php-fpm.d/www.conf
+
+# Add PHP-FPM optimizations for large responses
+RUN echo "php_admin_value[memory_limit] = 256M" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[post_max_size] = 128M" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[upload_max_filesize] = 128M" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[max_execution_time] = 300" >> /etc/php-fpm.d/www.conf && \
+    echo "php_admin_value[max_input_time] = 300" >> /etc/php-fpm.d/www.conf    
+
 # Настройка PHP-FPM
 RUN mkdir -p /run/php-fpm && \
-    chmod 755 /run/php-fpm && \
-    sed -i 's/listen = 127.0.0.1:9023/listen = 0.0.0.0:9023/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/;listen.allowed_clients = 127.0.0.1/listen.allowed_clients = 0.0.0.0/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/user = apache/user = bitrix/g' /etc/php-fpm.d/www.conf && \
-    sed -i 's/group = apache/group = bitrix/g' /etc/php-fpm.d/www.conf
+    chmod 755 /run/php-fpm
 
-RUN useradd -r bitrix
+RUN mkdir -p /bitrix/tmp && \
+    chmod 777 /bitrix/tmp
+
+RUN useradd -r bitrix -d /home/bitrix && \
+    usermod -a -G apache -u ${UID} bitrix && \
+    groupmod -g ${GID} bitrix
 
 EXPOSE 9023
 CMD ["php-fpm", "-F"]
-
-# CMD ["php-fpm", "-F"]
